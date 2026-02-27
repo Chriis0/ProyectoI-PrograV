@@ -1,0 +1,237 @@
+/*
+    Aquí los colores y parte del diseño de la webb
+*/
+
+/*  Colores Principales  */
+:root {
+    --azul: #1a3a6b;
+    --azul-claro: #2a5298;
+    --dorado: #c9a84c;
+    --verde: #2e7d32;
+    --verde-claro: #43a047;
+    --blanco: #ffffff;
+    --gris-claro: #f5f5f5;
+}
+
+/*  Cuerpo y fondo  */
+body {
+    background-color: var(--blanco);
+    color: #333;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/*  NAVBAR  */
+.navbar {
+    background-color: var(--azul) !important;
+    border-bottom: 3px solid var(--dorado);
+}
+
+.navbar-brand {
+    color: var(--dorado) !important;
+    font-weight: bold;
+    font-size: 1.4rem;
+    letter-spacing: 1px;
+}
+
+    .navbar-brand:hover {
+        color: var(--blanco) !important;
+    }
+
+.nav-link {
+    color: var(--blanco) !important;
+}
+
+    .nav-link:hover {
+        color: var(--dorado) !important;
+    }
+
+/*  Título */
+h2, h3, h4 {
+    color: var(--azul);
+    font-weight: bold;
+}
+
+/*  Botones  */
+.btn-primary {
+    background-color: var(--azul-claro);
+    border: 2px solid var(--dorado);
+    color: var(--blanco);
+}
+
+    .btn-primary:hover {
+        background-color: var(--azul);
+        border-color: var(--dorado);
+    }
+
+.btn-warning {
+    background-color: var(--dorado);
+    border: 2px solid var(--azul);
+    color: var(--blanco);
+}
+
+    .btn-warning:hover {
+        background-color: #b8962a;
+        color: var(--blanco);
+    }
+
+.btn-danger {
+    background-color: #c0392b;
+    border: 2px solid var(--dorado);
+    color: var(--blanco);
+}
+
+.btn-success {
+    background-color: var(--verde);
+    border: 2px solid var(--dorado);
+    color: var(--blanco);
+}
+
+    .btn-success:hover {
+        background-color: var(--verde-claro);
+    }
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: 2px solid var(--azul);
+    color: var(--blanco);
+}
+
+.btn-info {
+    background-color: var(--azul-claro);
+    border: 2px solid var(--dorado);
+    color: var(--blanco);
+}
+
+    .btn-info:hover {
+        background-color: var(--azul);
+        color: var(--blanco);
+    }
+
+/*  Tablas  */
+.table thead.table-dark {
+    background-color: var(--azul) !important;
+    color: var(--blanco);
+    border-bottom: 3px solid var(--dorado);
+}
+
+.table tbody tr:hover {
+    background-color: #e8f0fe;
+}
+
+.table {
+    border: 1px solid var(--dorado);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Cards */
+.card {
+    border: 2px solid var(--dorado);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.card-title {
+    color: var(--azul);
+    font-weight: bold;
+}
+
+/* Formularios */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--dorado);
+    box-shadow: 0 0 0 0.2rem rgba(201, 168, 76, 0.3);
+}
+
+.form-label {
+    color: var(--azul);
+    font-weight: 600;
+}
+
+/* Imágenes de los productos */
+.producto-imagen {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid var(--dorado);
+}
+
+.card-img-top {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    background-color: var(--gris-claro);
+    padding: 10px;
+}
+
+/* Badges */
+.badge.bg-success {
+    background-color: var(--verde) !important;
+}
+
+.badge.bg-danger {
+    background-color: #c0392b !important;
+}
+
+/* Footer */
+footer {
+    background-color: var(--azul);
+    color: var(--blanco);
+    border-top: 3px solid var(--dorado);
+    padding: 15px 0;
+    text-align: center;
+}
+
+/* Contenedor Principal */
+.container.mt-4 {
+    background-color: var(--blanco);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* Página de login y registro */
+.card-header {
+    background-color: var(--azul) !important;
+    color: var(--blanco) !important;
+    border-bottom: 3px solid var(--dorado);
+}
+
+/* Alertas */
+.alert-danger {
+    border-left: 5px solid #c0392b;
+}
+
+.alert-success {
+    border-left: 5px solid var(--verde);
+}
+
+/* Hero section */
+.hero-section {
+    background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
+    color: var(--blanco);
+    border-radius: 15px;
+    border: 3px solid var(--dorado);
+}
+
+.hero-icon {
+    font-size: 5rem;
+    color: var(--dorado);
+    display: block;
+}
+
+/* guia de pasos */
+.paso-circulo {
+    width: 60px;
+    height: 60px;
+    background-color: var(--azul);
+    color: var(--blanco);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border: 3px solid var(--dorado);
+}

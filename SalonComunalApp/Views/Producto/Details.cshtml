@@ -1,0 +1,39 @@
+﻿@model SalonComunalApp.Models.Producto
+
+@{
+    ViewData["Title"] = "Detalle del Producto";
+}
+
+<div class="container mt-4">
+    <h2>Detalle del Producto</h2>
+    <hr />
+
+    <div class="card" style="max-width: 600px;">
+        @if (!string.IsNullOrEmpty(Model.ImagenUrl))
+        {
+            <img src="@Model.ImagenUrl" style="width:100%; max-height:300px; object-fit:contain; background-color:#f5f5f5; padding:10px;" alt="@Model.Nombre" />
+        }
+        <div class="card-body">
+            <h4 class="card-title">@Model.Nombre</h4>
+            <p class="card-text">@Model.Descripcion</p>
+            <p><strong>Categoría:</strong> @Model.Categoria</p>
+            <p><strong>Precio:</strong> ₡@Model.Precio.ToString("N2")</p>
+            <p>
+                <strong>Disponible:</strong>
+                @if (Model.Disponible)
+                {
+                    <span class="badge bg-success">Sí</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">No</span>
+                }
+            </p>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    </div>
+</div>

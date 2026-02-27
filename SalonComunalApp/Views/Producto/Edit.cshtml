@@ -1,0 +1,65 @@
+﻿@model SalonComunalApp.Models.Producto
+
+@{
+    ViewData["Title"] = "Editar Producto";
+}
+
+<div class="container mt-4">
+    <h2>Editar Producto o Servicio</h2>
+    <hr />
+
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label asp-for="Nombre" class="form-label"></label>
+            <input asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Descripcion" class="form-label"></label>
+            <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Descripcion" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Precio" class="form-label"></label>
+            <input asp-for="Precio" class="form-control" />
+            <span asp-validation-for="Precio" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Categoria" class="form-label"></label>
+            <select asp-for="Categoria" class="form-select">
+                <option value="">-- Seleccione categoría --</option>
+                <option value="Mobiliario">Mobiliario</option>
+                <option value="Alimentación">Alimentación</option>
+                <option value="Bebidas">Bebidas</option>
+                <option value="Tecnología">Tecnología</option>
+                <option value="Otro">Otro</option>
+            </select>
+            <span asp-validation-for="Categoria" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ImagenUrl" class="form-label">URL de imagen (opcional)</label>
+            <input asp-for="ImagenUrl" class="form-control" />
+        </div>
+
+        <div class="mb-3 form-check">
+            <input asp-for="Disponible" class="form-check-input" />
+            <label asp-for="Disponible" class="form-check-label"></label>
+        </div>
+
+        <button type="submit" class="btn btn-warning">Guardar cambios</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
