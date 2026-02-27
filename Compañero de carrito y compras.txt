@@ -1,0 +1,27 @@
+Hola, esto es lo que faltaría de su parte
+
+Lo que ya está listo (no tocar):
+El catálogo de productos ya está completamente implementado con imágenes, descripción, precio y categorías. Los modelos de base de datos que necesita ya están creados:
+
+- Models/Producto.cs — tiene imagen, descripción y precio listos
+- Models/Reserva.cs y Models/DetalleReserva.cs — para guardar los pedidos
+
+El paquete de Stripe ya está instalado (Stripe.net) y el paquete de correos también (MailKit).
+Lo que le toca sería: Punto 5 (40%)
+
+Ya le dejé la estructura lista en:
+
+- Controllers/CarritoController.cs — controlador con métodos vacíos y comentarios TODO
+- Views/Carrito/Index.cshtml — vista vacía
+- Views/Carrito/Pagar.cshtml — vista vacía
+- Views/Carrito/Confirmacion.cshtml — vista vacía
+- Views/Carrito/DetalleProducto.cshtml — vista vacía
+
+Lo que tiene que hacer es:
+
+1. Punto 5a  — Pantalla donde el comprador ve los productos del catálogo con imagen, descripción y precio
+2. Punto 5b  — Agregar y eliminar productos del carrito de compras
+3. Punto 5c  — Procesar el pago con Stripe
+4. Punto 5d  — Enviar correo de confirmación con fecha, productos comprados y total usando MailKit
+
+Las claves de Stripe están en appsettings.json — solo tiene que agregarlas cuando las tenga.

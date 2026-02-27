@@ -1,0 +1,28 @@
+Hola, esto es lo que faltaría de su parte
+
+Lo que ya está listo (no tocar):
+Los modelos de base de datos ya están creados:
+
+- Models/Reserva.cs — tiene todos los campos necesarios: FechaEvento, Total, - MontoPagadoAdelanto (25%), MontoRestante (75%), Estado y StripePaymentId
+- Models/DetalleReserva.cs — relaciona una reserva con los productos seleccionados
+
+El paquete de Stripe ya está instalado (Stripe.net) y el paquete de correos también (MailKit).
+Lo que le toca sería : Punto 3b (reserva con 25%)
+
+Ya le dejé la estructura lista en:
+
+- Controllers/ReservaController.cs — controlador con métodos vacíos y comentarios TODO
+- Views/Reserva/Index.cshtml — vista vacía
+- Views/Reserva/Crear.cshtml — vista vacía
+- Views/Reserva/PagarRestante.cshtml — vista vacía
+- Views/Reserva/Cancelar.cshtml — vista vacía
+
+Lo que tiene que hacer es:
+
+1. Crear reserva cobrando solo el 25% del total con Stripe
+2. Permitir pagar el 75% restante una semana antes del evento
+3. Si no paga a tiempo, el cliente pierde el adelanto, se libera el espacio y se envía correo
+4. Si alguien nuevo quiere el salón ya liberado, paga el total al menos 2 días antes
+5. Enviar correo de confirmación en cada paso usando MailKit
+
+Las claves de Stripe están en appsettings.json — solo tiene que agregarlas cuando las tenga.
