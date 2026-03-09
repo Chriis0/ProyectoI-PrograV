@@ -1,5 +1,50 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model SalonComunalApp.Models.Producto
 @{
+    ViewData["Title"] = "Detalle del Producto";
 }
+
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Catálogo</a></li>
+        <li class="breadcrumb-item active">@Model.Nombre</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <div class="col-md-5">
+        @if (!string.IsNullOrEmpty(Model.ImagenUrl))
+        {
+            <img src="@Model.ImagenUrl" class="img-fluid rounded shadow" alt="@Model.Nombre" style="max-height:400px;width:100%;object-fit:cover;">
+        }
+        else
+        {
+            <div class="bg-light rounded d-flex align-items-center justify-content-center shadow" style="height:300px;">
+                <i class="fas fa-image fa-5x text-muted"></i>
+            </div>
+        }
+    </div>
+    <div class="col-md-7">
+        <span class="badge bg-secondary mb-2">@Model.Categoria</span>
+        <h2 class="mb-2">@Model.Nombre</h2>
+        <p class="text-muted">@Model.Descripcion</p>
+        <hr>
+        <p class="fs-3 fw-bold text-success">₡@Model.Precio.ToString("N2")</p>
+
+        <form asp-action="AgregarProducto" method="post" class="mt-3">
+            <input type="hidden" name="productoId" value="@Model.Id" />
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <label class="fw-semibold">Cantidad:</label>
+                <input type="number" name="cantidad" value="1" min="1" max="50"
+                       class="form-control" style="width:90px;">
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-cart-plus me-2"></i>Agregar al carrito
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-1"></i>Volver
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

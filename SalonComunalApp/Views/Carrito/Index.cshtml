@@ -1,5 +1,81 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model IEnumerable<SalonComunalApp.Models.Producto>
 @{
+    ViewData["Title"] = "Catálogo de Productos";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-store me-2 text-success"></i>Catálogo de Productos</h2>
+    <a asp-action="VerCarrito" class="btn btn-success">
+        <i class="fas fa-shopping-cart me-1"></i>Ver Carrito
+        @if (ViewBag.CantidadCarrito > 0)
+        {
+            <span class="badge bg-warning text-dark ms-1">@ViewBag.CantidadCarrito</span>
+        }
+    </a>
+</div>
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Exito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>No hay productos disponibles en este momento.
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var producto in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    @if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                    {
+                        <img src="@producto.ImagenUrl" class="card-img-top" alt="@producto.Nombre"
+                             style="height:200px;object-fit:cover;">
+                    }
+                    else
+                    {
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height:200px;">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                    }
+                    <div class="card-body d-flex flex-column">
+                        <span class="badge bg-secondary mb-2 align-self-start">@producto.Categoria</span>
+                        <h5 class="card-title">@producto.Nombre</h5>
+                        <p class="card-text text-muted flex-grow-1">
+                            @(producto.Descripcion.Length > 80 ? producto.Descripcion[..80] + "..." : producto.Descripcion)
+                        </p>
+                        <p class="fs-5 fw-bold text-success mb-3">₡@producto.Precio.ToString("N2")</p>
+                        <div class="d-flex gap-2">
+                            <a asp-action="DetalleProducto" asp-route-id="@producto.Id"
+                               class="btn btn-outline-secondary btn-sm flex-grow-1">
+                                <i class="fas fa-eye me-1"></i>Ver detalle
+                            </a>
+                            <form asp-action="AgregarProducto" method="post" class="flex-grow-1">
+                                <input type="hidden" name="productoId" value="@producto.Id" />
+                                <input type="hidden" name="cantidad" value="1" />
+                                <button type="submit" class="btn btn-success btn-sm w-100">
+                                    <i class="fas fa-cart-plus me-1"></i>Agregar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }

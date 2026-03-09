@@ -1,5 +1,40 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
 @{
+    ViewData["Title"] = "Compra Confirmada";
 }
+
+<div class="text-center py-5">
+    <div class="mb-4">
+        <i class="fas fa-check-circle fa-5x text-success"></i>
+    </div>
+    <h2 class="text-success fw-bold">¡Compra realizada con éxito!</h2>
+    <p class="lead text-muted mt-2">Tu pago fue procesado correctamente.</p>
+
+    <div class="card shadow-sm mx-auto mt-4" style="max-width:480px;">
+        <div class="card-body">
+            @if (TempData["ReservaId"] != null)
+            {
+                <p class="mb-1"><strong>N.º de pedido:</strong> #@TempData["ReservaId"]</p>
+            }
+            @if (TempData["Total"] != null)
+            {
+                <p class="mb-1"><strong>Total pagado:</strong> ₡@TempData["Total"]</p>
+            }
+            @if (TempData["StripeId"] != null)
+            {
+                <p class="mb-1 text-muted small"><strong>ID Stripe:</strong> @TempData["StripeId"]</p>
+            }
+            <p class="mb-0 mt-2 text-muted small">
+                <i class="fas fa-envelope me-1"></i>Recibirás un correo de confirmación con el detalle de tu compra.
+            </p>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-3 justify-content-center">
+        <a asp-action="Index" class="btn btn-success btn-lg">
+            <i class="fas fa-store me-2"></i>Seguir comprando
+        </a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-home me-2"></i>Inicio
+        </a>
+    </div>
+</div>

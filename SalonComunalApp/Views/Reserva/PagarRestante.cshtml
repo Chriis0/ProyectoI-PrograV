@@ -1,5 +1,65 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model SalonComunalApp.Models.Reserva
 @{
+    ViewData["Title"] = "Pagar Restante";
+}
+
+<h2 class="mb-4"><i class="fas fa-credit-card me-2 text-success"></i>Pagar Monto Restante</h2>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-success text-white">Detalle de la Reserva</div>
+            <div class="card-body">
+                <p><strong>N.º Reserva:</strong> #@Model.Id</p>
+                <p><strong>Fecha del evento:</strong> @Model.FechaEvento.ToString("dd/MM/yyyy")</p>
+                <p><strong>Total:</strong> ₡@Model.Total.ToString("N2")</p>
+                <p><strong>Ya pagado (25%):</strong> ₡@Model.MontoPagadoAdelanto.ToString("N2")</p>
+                <p class="fs-5 fw-bold text-danger"><strong>Por pagar (75%):</strong> ₡@Model.MontoRestante.ToString("N2")</p>
+                <p class="text-muted small"><i class="fas fa-calendar-day me-1"></i>Fecha límite: <strong>@ViewBag.FechaLimite</strong></p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white"><i class="fas fa-lock me-2"></i>Pago con Stripe</div>
+            <div class="card-body">
+                <form asp-action="PagarRestante" asp-route-id="@Model.Id" method="post" id="pago-form">
+                    <div id="card-element" class="form-control mb-2" style="padding:12px;height:auto;"></div>
+                    <div id="card-errors" class="text-danger small mb-2"></div>
+                    <input type="hidden" name="stripeToken" id="stripeToken" />
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success flex-grow-1" id="submit-btn">
+                            <i class="fas fa-lock me-2"></i>Pagar ₡@Model.MontoRestante.ToString("N2")
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        var stripe = Stripe('@ViewBag.StripePublicKey');
+        var card = stripe.elements().create('card', { style: { base: { fontSize: '16px' } } });
+        card.mount('#card-element');
+        card.on('change', e => { document.getElementById('card-errors').textContent = e.error ? e.error.message : ''; });
+
+        document.getElementById('pago-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+            const { token, error } = await stripe.createToken(card);
+            if (error) {
+                document.getElementById('card-errors').textContent = error.message;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-lock me-2"></i>Pagar ₡@Model.MontoRestante.ToString("N2")';
+            } else {
+                document.getElementById('stripeToken').value = token.id;
+                this.submit();
+            }
+        });
+    </script>
 }

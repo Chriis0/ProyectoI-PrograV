@@ -1,5 +1,106 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model IEnumerable<SalonComunalApp.Models.Reserva>
 @{
+    ViewData["Title"] = "Mis Reservas";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-calendar-check me-2 text-success"></i>Mis Reservas</h2>
+    <a asp-action="Create" class="btn btn-success">
+        <i class="fas fa-plus me-1"></i>Nueva Reserva
+    </a>
+</div>
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Exito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+        <h5 class="text-muted">No tienes reservas registradas</h5>
+        <a asp-action="Create" class="btn btn-success mt-3">
+            <i class="fas fa-plus me-2"></i>Hacer una Reserva
+        </a>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var reserva in Model)
+        {
+            var badgeClass = reserva.Estado switch
+            {
+                "Reservado" => "bg-warning text-dark",
+                "PagadoTotal" => "bg-success",
+                "Cancelado" => "bg-secondary",
+                "CanceladoSinReembolso" => "bg-danger",
+                _ => "bg-secondary"
+            };
+            var estadoTexto = reserva.Estado switch
+            {
+                "Reservado" => "⏳ Pendiente pago",
+                "PagadoTotal" => "✅ Confirmado",
+                "Cancelado" => "❌ Cancelado",
+                "CanceladoSinReembolso" => "❌ Cancelado (sin reembolso)",
+                _ => reserva.Estado
+            };
+
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <strong>Reserva #@reserva.Id</strong>
+                        <span class="badge @badgeClass">@estadoTexto</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1"><i class="fas fa-calendar me-2 text-muted"></i><strong>Evento:</strong> @reserva.FechaEvento.ToString("dd/MM/yyyy")</p>
+                        <p class="mb-1"><i class="fas fa-clock me-2 text-muted"></i><strong>Reservado el:</strong> @reserva.FechaReserva.ToString("dd/MM/yyyy")</p>
+                        <p class="mb-1"><i class="fas fa-coins me-2 text-muted"></i><strong>Total:</strong> ₡@reserva.Total.ToString("N2")</p>
+                        <p class="mb-1"><i class="fas fa-check me-2 text-success"></i><strong>Pagado:</strong> ₡@reserva.MontoPagadoAdelanto.ToString("N2")</p>
+                        @if (reserva.MontoRestante > 0)
+                        {
+                            <p class="mb-1 text-danger"><i class="fas fa-exclamation-triangle me-2"></i><strong>Pendiente:</strong> ₡@reserva.MontoRestante.ToString("N2")</p>
+                            <p class="mb-2 text-muted small">
+                                <i class="fas fa-calendar-day me-1"></i>Límite de pago: @reserva.FechaEvento.AddDays(-7).ToString("dd/MM/yyyy")
+                            </p>
+                        }
+
+                        @if (reserva.Detalles.Any())
+                        {
+                            <hr class="my-2">
+                            <p class="mb-1 fw-semibold small">Servicios:</p>
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var d in reserva.Detalles)
+                                {
+                                    <li class="small text-muted">• @d.Producto?.Nombre x@d.Cantidad — ₡@((d.PrecioUnitario * d.Cantidad).ToString("N2"))</li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                    @if (reserva.Estado == "Reservado")
+                    {
+                        <div class="card-footer d-flex gap-2">
+                            <a asp-action="PagarRestante" asp-route-id="@reserva.Id" class="btn btn-success btn-sm flex-grow-1">
+                                <i class="fas fa-credit-card me-1"></i>Pagar restante
+                            </a>
+                            <a asp-action="Cancelar" asp-route-id="@reserva.Id" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-times me-1"></i>Cancelar
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
 }

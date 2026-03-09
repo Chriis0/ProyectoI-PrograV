@@ -12,7 +12,7 @@ namespace SalonComunalApp.Data
             var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
 
-            // aqu[i se crean los roles
+            
             string[] roles = { "Administrador", "Comprador" };
             foreach (var rol in roles)
             {

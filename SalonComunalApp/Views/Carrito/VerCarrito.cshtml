@@ -1,0 +1,92 @@
+@model List<SalonComunalApp.Models.CarritoItem>
+@{
+    ViewData["Title"] = "Mi Carrito";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-shopping-cart me-2 text-success"></i>Mi Carrito</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Seguir comprando
+    </a>
+</div>
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Exito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">Tu carrito está vacío</h4>
+        <a asp-action="Index" class="btn btn-success mt-3">
+            <i class="fas fa-store me-2"></i>Ver productos
+        </a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Producto</th>
+                    <th class="text-center">Cantidad</th>
+                    <th class="text-end">Precio unitario</th>
+                    <th class="text-end">Subtotal</th>
+                    <th class="text-center">Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                @if (!string.IsNullOrEmpty(item.ImagenUrl))
+                                {
+                                    <img src="@item.ImagenUrl" style="width:55px;height:55px;object-fit:cover;border-radius:6px;" alt="@item.Nombre">
+                                }
+                                <div>
+                                    <strong>@item.Nombre</strong>
+                                    <div class="text-muted small">@(item.Descripcion.Length > 50 ? item.Descripcion[..50] + "..." : item.Descripcion)</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-success fs-6">@item.Cantidad</span>
+                        </td>
+                        <td class="text-end">₡@item.Precio.ToString("N2")</td>
+                        <td class="text-end fw-bold">₡@item.Subtotal.ToString("N2")</td>
+                        <td class="text-center">
+                            <form asp-action="EliminarProducto" method="post">
+                                <input type="hidden" name="productoId" value="@item.ProductoId" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('¿Eliminar este producto del carrito?')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="table-success">
+                    <td colspan="3" class="text-end fw-bold fs-5">Total:</td>
+                    <td class="text-end fw-bold fs-5">₡@ViewBag.Total.ToString("N2")</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-end mt-3">
+        <a asp-action="Pagar" class="btn btn-success btn-lg">
+            <i class="fas fa-credit-card me-2"></i>Proceder al pago
+        </a>
+    </div>
+}

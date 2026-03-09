@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SalonComunalApp.Interfaces;
 using SalonComunalApp.Models;
-//Christian Peña
+
 namespace SalonComunalApp.Controllers
 {
     [Authorize(Roles = "Administrador")]

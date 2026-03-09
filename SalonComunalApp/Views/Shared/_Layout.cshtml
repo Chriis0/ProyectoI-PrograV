@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -43,6 +43,16 @@
                         }
                         @if (User.IsInRole("Comprador"))
                         {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Carrito" asp-action="Index">
+                                    <i class="fas fa-store me-1"></i>Tienda
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Carrito" asp-action="VerCarrito">
+                                    <i class="fas fa-shopping-cart me-1"></i>Carrito
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Reserva" asp-action="Index">
                                     <i class="fas fa-calendar-check me-1"></i>Reservas

@@ -25,13 +25,24 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 
 builder.Services.AddRecaptcha(builder.Configuration.GetSection("RecaptchaSettings"));
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
 builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<ICarritoService, CarritoService>();
+builder.Services.AddScoped<ICorreoService, CorreoService>();
 
 var app = builder.Build();
 
-// Creando roles y admin por defecto
 using (var scope = app.Services.CreateScope())
 {
     await SeedData.InicializarRoles(scope.ServiceProvider);
@@ -50,6 +61,7 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 

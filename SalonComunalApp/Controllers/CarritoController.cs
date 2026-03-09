@@ -1,66 +1,196 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SalonComunalApp.Data;
+using SalonComunalApp.Interfaces;
+using SalonComunalApp.Models;
+using Stripe;
 
 namespace SalonComunalApp.Controllers
 {
-
     [Authorize(Roles = "Comprador")]
     public class CarritoController : Controller
     {
-        // TODO: Inyectar ApplicationDbContext y servicios necesarios
+        private readonly IProductoService _productoService;
+        private readonly ICarritoService _carritoService;
+        private readonly ICorreoService _correoService;
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IConfiguration _config;
+        private readonly ILogger<CarritoController> _logger;
 
-        // GET: Ver carrito actual
-        public IActionResult Index()
+        public CarritoController(
+            IProductoService productoService,
+            ICarritoService carritoService,
+            ICorreoService correoService,
+            ApplicationDbContext context,
+            UserManager<IdentityUser> userManager,
+            IConfiguration config,
+            ILogger<CarritoController> logger)
         {
-            // TODO: Obtener productos en el carrito de la sesión
-            return View();
+            _productoService = productoService;
+            _carritoService = carritoService;
+            _correoService = correoService;
+            _context = context;
+            _userManager = userManager;
+            _config = config;
+            _logger = logger;
         }
 
-        // POST: Agregar producto al carrito
+        public async Task<IActionResult> Index()
+        {
+            var productos = await _productoService.ObtenerTodosAsync();
+            var productosDisponibles = productos.Where(p => p.Disponible).ToList();
+            ViewBag.CantidadCarrito = _carritoService.ObtenerCarrito().Sum(c => c.Cantidad);
+            return View(productosDisponibles);
+        }
+
+        public async Task<IActionResult> DetalleProducto(int id)
+        {
+            var producto = await _productoService.ObtenerPorIdAsync(id);
+            if (producto == null)
+            {
+                TempData["Error"] = "Producto no encontrado.";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(producto);
+        }
+
         [HttpPost]
-        public IActionResult AgregarProducto(int productoId, int cantidad)
+        public async Task<IActionResult> AgregarProducto(int productoId, int cantidad = 1)
         {
-            // TODO: Agregar producto al carrito en sesión
-            return RedirectToAction(nameof(Index));
+            var producto = await _productoService.ObtenerPorIdAsync(productoId);
+            if (producto == null || !producto.Disponible)
+            {
+                TempData["Error"] = "El producto no está disponible.";
+                return RedirectToAction(nameof(Index));
+            }
+            if (cantidad < 1) cantidad = 1;
+            _carritoService.AgregarProducto(producto, cantidad);
+            TempData["Exito"] = $"'{producto.Nombre}' agregado al carrito.";
+            _logger.LogInformation("Producto {ProductoId} agregado al carrito por {Usuario}", productoId, User.Identity?.Name);
+            return RedirectToAction(nameof(VerCarrito));
         }
 
-        // POST: Eliminar producto del carrito
         [HttpPost]
         public IActionResult EliminarProducto(int productoId)
         {
-            // TODO: Eliminar producto del carrito en sesión
-            return RedirectToAction(nameof(Index));
+            _carritoService.EliminarProducto(productoId);
+            TempData["Exito"] = "Producto eliminado del carrito.";
+            _logger.LogInformation("Producto {ProductoId} eliminado del carrito por {Usuario}", productoId, User.Identity?.Name);
+            return RedirectToAction(nameof(VerCarrito));
         }
 
-        // GET: Pantalla de pago
+        public IActionResult VerCarrito()
+        {
+            var items = _carritoService.ObtenerCarrito();
+            ViewBag.Total = _carritoService.ObtenerTotal();
+            return View(items);
+        }
+
         public IActionResult Pagar()
         {
-            // TODO: Mostrar resumen de compra y formulario de pago
-            return View();
+            var items = _carritoService.ObtenerCarrito();
+            if (!items.Any())
+            {
+                TempData["Error"] = "Tu carrito está vacío.";
+                return RedirectToAction(nameof(Index));
+            }
+            ViewBag.Total = _carritoService.ObtenerTotal();
+            ViewBag.StripePublicKey = _config["Stripe:PublicKey"];
+            return View(items);
         }
 
-        // POST: Procesar pago con Stripe
         [HttpPost]
-        public IActionResult ProcesarPago(string stripeToken)
+        public async Task<IActionResult> ProcesarPago(string stripeToken)
         {
-            // TODO: Procesar pago con Stripe
-            // TODO: Guardar pedido en base de datos
-            // TODO: Enviar correo con fecha, productos y total
-            // TODO: Vaciar carrito
-            return RedirectToAction(nameof(Confirmacion));
+            var items = _carritoService.ObtenerCarrito();
+            if (!items.Any())
+            {
+                TempData["Error"] = "Tu carrito está vacío.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var total = _carritoService.ObtenerTotal();
+            var usuario = await _userManager.GetUserAsync(User);
+
+            try
+            {
+                StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
+
+                var chargeOptions = new ChargeCreateOptions
+                {
+                    Amount = (long)(total * 100),
+                    Currency = "crc",
+                    Description = $"Compra Salón Comunal - {usuario?.Email}",
+                    Source = stripeToken,
+                    ReceiptEmail = usuario?.Email
+                };
+
+                var chargeService = new ChargeService();
+                var charge = await chargeService.CreateAsync(chargeOptions);
+
+                if (charge.Status != "succeeded")
+                {
+                    TempData["Error"] = "El pago no fue aprobado. Intente nuevamente.";
+                    return RedirectToAction(nameof(Pagar));
+                }
+
+                var reserva = new Reserva
+                {
+                    UsuarioId = usuario?.Id ?? "",
+                    FechaEvento = DateTime.Now,
+                    FechaReserva = DateTime.Now,
+                    Total = total,
+                    MontoPagadoAdelanto = total,
+                    MontoRestante = 0,
+                    Estado = "Pagado",
+                    StripePaymentId = charge.Id
+                };
+
+                _context.Reservas.Add(reserva);
+                await _context.SaveChangesAsync();
+
+                foreach (var item in items)
+                {
+                    _context.DetallesReserva.Add(new DetalleReserva
+                    {
+                        ReservaId = reserva.Id,
+                        ProductoId = item.ProductoId,
+                        Cantidad = item.Cantidad,
+                        PrecioUnitario = item.Precio
+                    });
+                }
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Compra procesada. ReservaId={ReservaId}, Total={Total}", reserva.Id, total);
+
+                if (!string.IsNullOrEmpty(usuario?.Email))
+                    await _correoService.EnviarConfirmacionCompraAsync(usuario.Email, items, total, DateTime.Now);
+
+                TempData["ReservaId"] = reserva.Id;
+                TempData["Total"] = total.ToString("N2");
+                TempData["StripeId"] = charge.Id;
+
+                _carritoService.VaciarCarrito();
+                return RedirectToAction(nameof(Confirmacion));
+            }
+            catch (StripeException ex)
+            {
+                _logger.LogError(ex, "Error de Stripe al procesar pago");
+                TempData["Error"] = $"Error al procesar el pago: {ex.StripeError?.Message ?? ex.Message}";
+                return RedirectToAction(nameof(Pagar));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error inesperado al procesar pago");
+                TempData["Error"] = "Ocurrió un error inesperado. Contacte al administrador.";
+                return RedirectToAction(nameof(Pagar));
+            }
         }
 
-        // GET: Confirmación de compra
         public IActionResult Confirmacion()
         {
-            // TODO: Mostrar resumen de la compra realizada
-            return View();
-        }
-
-        // GET: Ver detalle de un producto antes de comprar
-        public IActionResult DetalleProducto(int id)
-        {
-            // TODO: Mostrar imagen, descripción y precio del producto
             return View();
         }
     }
